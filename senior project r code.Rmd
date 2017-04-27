@@ -1,0 +1,329 @@
+---
+title: "Garrett Hill Senior Project Code"
+output: pdf_document
+---
+
+
+
+```{r}
+
+### install.packages('prettyR')
+
+```
+
+
+```{r}
+### reading in the data
+
+df=read.csv('df.csv')
+
+### cleaning up factor variables for various mental health problems
+
+library(prettyR)
+
+which( colnames(df)=="DSM_ADD" )
+which( colnames(df)=="D_TBD30" )
+
+for( i in 955:1075){
+  
+  lbls <- sort(levels(df[,i]))
+lbls <- (sub("^\\([0-9]+\\) +(.+$)", "\\1", lbls))
+df[,i] <- as.numeric(sub("^\\(0*([0-9]+)\\).+$", "\\1", df[,i]))
+df[,i] <- add.value.labels(df[,i], lbls)
+  
+}
+
+### recoding mental illness factor variables
+
+for(i in 955:1075){
+
+df[,i][df[,i] == 5] <- 0
+df[,i]=as.numeric(df[,i])
+
+}
+
+
+
+```
+
+
+```{r}
+
+### creating new variables that indicate how many and if any of the above mental illnesses are present
+
+df$mentalillness=df$D_PAT12 + df$D_SO12 + df$D_ASA12 + df$D_MJD12 + df$D_GAD12 + df$D_DYS12 + df$D_AGOWO12 + df$D_HYP12 + df$D_IED12 + df$D_SP12 + df$D_IMN12 + df$D_MAN12 + df$D_MND12
+
+
+
+
+df$seriousmentalillness=df$D_BIPO112 + df$D_BIPO212 + df$D_IMJ12 + df$D_PD12 
+
+
+### creating dummy variables for mental illness
+
+df$micode=df$mentalillness
+
+df$sermicode=df$seriousmentalillness
+
+df$micode[df$micode > 0] <- 1
+
+df$sermicode[df$sermicode > 0] <- 1
+
+
+
+```
+
+```{r}
+
+#### cleaning up factor variables for controls 
+
+
+lbls <- sort(levels(df$AGE))
+lbls <- (sub("^\\([0-9]+\\) +(.+$)", "\\1", lbls))
+df$AGE <- as.numeric(sub("^\\(0*([0-9]+)\\).+$", "\\1", df$AGE))
+df$AGE <- add.value.labels(df$AGE, lbls)
+
+
+
+lbls <- sort(levels(df$REGION))
+lbls <- (sub("^\\([0-9]+\\) +(.+$)", "\\1", lbls))
+df$REGION <- as.numeric(sub("^\\(0*([0-9]+)\\).+$", "\\1", df$REGION))
+df$REGION <- add.value.labels(df$REGION, lbls)
+
+
+lbls <- sort(levels(df$RESEX))
+lbls <- (sub("^\\([0-9]+\\) +(.+$)", "\\1", lbls))
+df$RESEX <- as.numeric(sub("^\\(0*([0-9]+)\\).+$", "\\1", df$RESEX))
+df$RESEX <- add.value.labels(df$RESEX, lbls)
+
+lbls <- sort(levels(df$AGECAT))
+lbls <- (sub("^\\([0-9]+\\) +(.+$)", "\\1", lbls))
+df$AGECAT <- as.numeric(sub("^\\(0*([0-9]+)\\).+$", "\\1", df$AGECAT))
+df$AGECAT <- add.value.labels(df$AGEGAT, lbls)
+
+lbls <- sort(levels(df$EDUCAT))
+lbls <- (sub("^\\([0-9]+\\) +(.+$)", "\\1", lbls))
+df$EDUCAT <- as.numeric(sub("^\\(0*([0-9]+)\\).+$", "\\1", df$EDUCAT))
+df$EDUCAT <- add.value.labels(df$EDUCAT, lbls)
+
+```
+
+```{r}
+
+df$FN2INTR1=as.character(df$FN2INTR1)
+
+
+df$FN2INTR2=as.character(df$FN2INTR2)
+
+
+```
+
+```{r}
+
+### category to income transformations
+
+df$income1=df$FN2INTR1
+
+df$income1[is.na(df$income1)] <- 0
+df$income1[df$income1 == "(01) Less than $0 (loss)"] <- 0
+df$income1[df$income1 == "(02) $0 (none)"] <- 0
+df$income1[df$income1 == "(03) $1 - $999"] <- 500
+df$income1[df$income1 == "(04) $1,000 - $1,999"] <- 1500
+df$income1[df$income1 == "(05) $2,000 - $2,999"] <- 2500
+df$income1[df$income1 == "(06) $3,000 - $3,999"] <- 3500
+df$income1[df$income1 == "(07) $4,000 - $4,999"] <- 4500
+df$income1[df$income1 == "(08) $5,000 - $5,999"] <- 5500
+df$income1[df$income1 == "(09) $6,000 - $6,999"] <- 6500
+df$income1[df$income1 == "(10) $7,000 - $7,999"] <- 7500
+df$income1[df$income1 == "(11) $8,000 - $8,999"] <- 8500
+df$income1[df$income1 == "(12) $9,000 - $9,999"] <- 9500
+df$income1[df$income1 == "(13) $10,000 - $10,999"] <- 10500
+df$income1[df$income1 == "(14) $11,000 - $11,999"] <- 11500
+df$income1[df$income1 == "(15) $12,000 - $12,999"] <- 12500
+df$income1[df$income1 == "(16) $13,000 - $13,999"] <- 13500
+df$income1[df$income1 == "(17) $14,000 - $14,999"] <- 14500
+df$income1[df$income1 == "(18) $15,000 - $15,999"] <- 15500
+df$income1[df$income1 == "(19) $16,000 - $16,999"] <- 16500
+df$income1[df$income1 == "(20) $17,000 - $17,999"] <- 17500
+df$income1[df$income1 == "(21) $18,000 - $18,999"] <- 18500
+df$income1[df$income1 == "(22) $19,000 - $19,999"] <- 19500
+df$income1[df$income1 == "(23) $20,000 - $24,999"] <- 22500
+df$income1[df$income1 == "(24) $25,000 - $29,000"] <- 27000
+df$income1[df$income1 == "(25) $30,000 - $34,999"] <- 32500
+df$income1[df$income1 == "(26) $35,000 - $39,999"] <- 37500
+df$income1[df$income1 == "(27) $40,000 - $44,999"] <- 42500
+df$income1[df$income1 == "(28) $45,000 - $49,999"] <- 47500
+df$income1[df$income1 == "(29) $50,000 - $74,999"] <- 62500
+df$income1[df$income1 == "(30) $75,000 - $99,000"] <- 87500
+df$income1[df$income1 == "(31) $100,000 - $149,999"] <- 125000
+df$income1[df$income1 == "(32) $150,000 - $199,999"] <- 175000
+df$income1[df$income1 == "(33) $200,000 - $299,999"] <- 250000
+df$income1[df$income1 == "(34) $300,000 - $499,999"] <- 400000
+df$income1[df$income1 == "(35) $500,000 - $999,999"] <- 750000
+df$income1[df$income1 == "(36) $1,000,000 (or more)"] <- 1000000
+
+
+df$income1=as.numeric(df$income1)
+
+
+
+
+
+df$income2=df$FN2INTR2
+
+
+
+```
+
+
+
+```{r}
+
+df$income2=df$FN2INTR2
+
+
+df$income2[is.na(df$income2)] <- 0
+df$income2[df$income2 == "(01) Less than $0 (loss)"] <- 0
+df$income2[df$income2 == "(02) $0 (none)"] <- 0
+df$income2[df$income2 == "(03) $1 - $999"] <- 500
+df$income2[df$income2 == "(04) $1,000 - $1,999"] <- 1500
+df$income2[df$income2 == "(05) $2,000 - $2,999"] <- 2500
+df$income2[df$income2 == "(06) $3,000 - $3,999"] <- 3500
+df$income2[df$income2 == "(07) $4,000 - $4,999"] <- 4500
+df$income2[df$income2 == "(08) $5,000 - $5,999"] <- 5500
+df$income2[df$income2 == "(09) $6,000 - $6,999"] <- 6500
+df$income2[df$income2 == "(10) $7,000 - $7,999"] <- 7500
+df$income2[df$income2 == "(11) $8,000 - $8,999"] <- 8500
+df$income2[df$income2 == "(12) $9,000 - $9,999"] <- 9500
+df$income2[df$income2 == "(13) $10,000 - $10,999"] <- 10500
+df$income2[df$income2 == "(14) $11,000 - $11,999"] <- 11500
+df$income2[df$income2 == "(15) $12,000 - $12,999"] <- 12500
+df$income2[df$income2 == "(16) $13,000 - $13,999"] <- 13500
+df$income2[df$income2 == "(17) $14,000 - $14,999"] <- 14500
+df$income2[df$income2 == "(18) $15,000 - $15,999"] <- 15500
+df$income2[df$income2 == "(19) $16,000 - $16,999"] <- 16500
+df$income2[df$income2 == "(20) $17,000 - $17,999"] <- 17500
+df$income2[df$income2 == "(21) $18,000 - $18,999"] <- 18500
+df$income2[df$income2 == "(22) $19,000 - $19,999"] <- 19500
+df$income2[df$income2 == "(23) $20,000 - $24,999"] <- 22500
+df$income2[df$income2 == "(24) $25,000 - $29,000"] <- 27000
+df$income2[df$income2 == "(25) $30,000 - $34,999"] <- 32500
+df$income2[df$income2 == "(26) $35,000 - $39,999"] <- 37500
+df$income2[df$income2 == "(27) $40,000 - $44,999"] <- 42500
+df$income2[df$income2 == "(28) $45,000 - $49,999"] <- 47500
+df$income2[df$income2 == "(29) $50,000 - $74,999"] <- 62500
+df$income2[df$income2 == "(30) $75,000 - $99,000"] <- 87500
+df$income2[df$income2 == "(31) $100,000 - $149,999"] <- 125000
+df$income2[df$income2 == "(32) $150,000 - $199,999"] <- 175000
+df$income2[df$income2 == "(33) $200,000 - $299,999"] <- 250000
+df$income2[df$income2 == "(34) $300,000 - $499,999"] <- 400000
+df$income2[df$income2 == "(35) $500,000 - $999,999"] <- 750000
+df$income2[df$income2 == "(36) $1,000,000 or more"] <- 1000000
+
+
+df$income2=as.numeric(df$income2)
+
+
+
+
+j=c(0,500,1500,2500,3500,4500,5500,6500,7500,8500,9500,10500,11500,12500,13500,14500,15500,16500,17500,18500,19500,22500,2700,32500,42500,47500,62500,87500,125000,175000,250000,400000,750000,1000000)
+
+df$incomevar=df$income1 + df$income2
+
+
+
+```
+
+
+```{r}
+
+
+df$incomevar[df$PEREARN2 == "(3) $20,001 to $30,000" & df$incomevar==0] <- 25000
+
+df$incomevar[df$PEREARN2 == "(4) $30,001 to $40,000" & df$incomevar==0] <- 35000
+
+df$incomevar[df$PEREARN2 == "(5) $40,001 to $50,000" & df$incomevar==0] <- 45000
+
+df$incomevar[df$PEREARN2 == "(6) $50,001 to $70,000"] <- 60000
+
+df$incomevar[df$PEREARN2 == "(7) $70,001 to $90,000"] <- 80000
+
+```
+
+```{r}
+
+
+df2=df[df$incomevar!=0,]
+
+df2$AGESQ=df2$AGE^2
+
+df3=df2[df2$incomevar>10000,]
+
+```
+
+
+
+```{r}
+### regression model
+
+fit <- lm(log(incomevar) ~ AGESQ + RESEX +as.factor(MAR_COH) + as.factor(EDUCAT) + as.factor(REGION) + micode + sermicode, data=df3)
+summary(fit) # show results
+
+
+
+
+```
+
+```{r}
+### predicting income and comparing to actual income
+
+dfmi=df2[df2$micode==1,]
+
+dfmi2=dfmi
+
+dfmi2$micode=0
+
+dfmi2$prediction1=predict(fit,dfmi2)
+
+
+
+dfmi2$money1=exp(dfmi2$prediction1)
+
+
+
+x=na.omit(dfmi2$incomevar)
+
+
+j=mean(x)
+k=sd(x)
+ll=j + 2*k
+ll2=j - 2*k
+
+dfmi3=dfmi2[dfmi2$incomevar< ll,]
+
+dfmi3=dfmi3[dfmi3$incomevar> ll2,]
+
+
+dfmi3$diff=dfmi3$money1-dfmi3$incomevar
+
+
+hist(df3$incomevar)
+hist(log(df3$incomevar))
+
+
+
+fit2totaldifference=dfmi3$diff
+tot=na.omit(fit2totaldifference)
+
+
+
+mean(tot)
+
+
+```
+
+
+
+
+
+
